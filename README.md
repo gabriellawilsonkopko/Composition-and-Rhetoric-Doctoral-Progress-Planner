@@ -1,4 +1,4 @@
-[README.md](https://github.com/user-attachments/files/30915821/README.md)
+
 # Doctoral Progress Tracker — Student Guide
 
 This is a website that helps you track your progress through your PhD in Rhetoric and Composition: coursework, milestones, semester planning, career goals, mentors, and job market prep. 
