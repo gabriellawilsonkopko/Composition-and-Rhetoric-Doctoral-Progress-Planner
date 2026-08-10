@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doctoral Progress Tracker — Navigating Uncertain Terrain</title>
+<style>
+  :root{
+    --navy:#1b2a4a; --navy-light:#2c4270; --cream:#faf7f0; --card:#ffffff;
+    --ink:#20232a; --muted:#6b7280; --border:#e4e1d8; --accent:#b5651d;
+    --green:#2f7d4f; --blue:#2563eb; --gray:#9aa0a6; --red:#c0392b;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+    background:var(--cream); color:var(--ink); line-height:1.5;
+  }
+  header{
+    background:var(--navy); color:#fff; padding:28px 24px 20px;
+  }
+  header h1{margin:0 0 6px; font-size:1.5rem; font-weight:700;}
+  header p{margin:0; color:#cdd6ea; font-size:0.92rem; max-width:760px;}
+  .container{max-width:1180px; margin:0 auto; padding:0 20px;}
+  nav.tabs{
+    display:flex; gap:4px; background:var(--navy-light); flex-wrap:wrap;
+    padding:0 20px;
+  }
+  nav.tabs button{
+    background:none; border:none; color:#dfe6f5; padding:12px 16px; cursor:pointer;
+    font-size:0.9rem; font-weight:600; border-bottom:3px solid transparent;
+  }
+  nav.tabs button.active{ color:#fff; border-bottom-color:var(--accent); }
+  nav.tabs button:hover{ color:#fff; }
+  main{ padding:24px 0 60px; }
+  .panel{ display:none; }
+  .panel.active{ display:block; }
+  .card{
+    background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+    padding:20px; margin-bottom:18px;
+  }
+  .callout{
+    background:#eef2fb; border:1px solid #c9d5f0; border-radius:var(--radius);
+    padding:14px 18px; margin-bottom:18px; font-size:0.92rem;
+  }
+  .callout strong{ color:var(--navy); }
+  h2{font-size:1.15rem; color:var(--navy); margin-top:0;}
+  h3{font-size:1rem; color:var(--navy);}
+  .muted{ color:var(--muted); font-size:0.85rem; }
+  .toolbar{
+    display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:16px;
+  }
+  .chip{
+    border:1px solid var(--border); background:#fff; border-radius:999px; padding:6px 12px;
+    font-size:0.8rem; cursor:pointer; color:var(--ink); user-select:none;
+  }
+  .chip.active{ background:var(--navy); color:#fff; border-color:var(--navy); }
+  select, input[type=date], input[type=text]{
+    font-family:inherit; font-size:0.85rem; padding:6px 8px; border:1px solid var(--border);
+    border-radius:6px; background:#fff; color:var(--ink);
+  }
+  .search{ flex:1; min-width:180px; }
+  .progress-wrap{ margin-bottom:16px; }
+  .progress-bar{ height:8px; background:#eee; border-radius:999px; overflow:hidden; }
+  .progress-fill{ height:100%; background:var(--green); transition:width .2s; }
+  table{ width:100%; border-collapse:collapse; font-size:0.85rem; table-layout:fixed; }
+  th{
+    text-align:left; background:#f4f1e8; color:var(--navy); padding:10px 8px;
+    border-bottom:2px solid var(--border); position:sticky; top:0; white-space:nowrap;
+  }
+  td{ padding:9px 8px; border-bottom:1px solid var(--border); vertical-align:top; overflow-wrap:break-word; }
+  tr:hover td{ background:#fbfaf5; }
+  .editable{
+    min-width:80px; min-height:18px; outline:none; padding:3px 4px; border-radius:4px;
+  }
+  .editable:focus{ background:#fff8e6; box-shadow:0 0 0 1px var(--accent) inset; }
+  .badge{
+    display:inline-block; font-size:0.68rem; padding:2px 7px; border-radius:999px;
+    background:#eee; color:#333; margin:1px 2px 1px 0; white-space:nowrap;
+    cursor:pointer; border:1px solid transparent; user-select:none;
+  }
+  .badge-off{ opacity:0.35; background:#fff !important; border:1px dashed #c9c6bb; color:#8a8a8a; }
+  .badge-on.General{ background:#e5e7eb; }
+  .badge-on.Tenure{ background:#dbeafe; }
+  .badge-on.Teaching{ background:#dcfce7; }
+  .badge-on.WC{ background:#ede9fe; }
+  .badge-on.Industry{ background:#ffedd5; }
+  .badge-on.TPC{ background:#fef9c3; }
+  .badge-on.CEPR{ background:#fce7f3; }
+  select.status{ font-weight:600; font-size:0.8rem; padding:5px 6px; }
+  select.status[data-val="Done"]{ color:var(--green); }
+  select.status[data-val="In progress"]{ color:var(--blue); }
+  select.status[data-val="Not started"]{ color:var(--muted); }
+  select.type-select{ font-weight:600; border:1px solid transparent; padding:5px 6px; font-size:0.78rem; }
+  select.type-select.type-Required{ background:#fde2e1; color:var(--red); }
+  select.type-select.type-Suggested{ background:#dbeafe; color:var(--blue); }
+  select.type-select.type-Milestone{ background:#ede9fe; color:#6d28d9; }
+  select.type-select.type-Institutional{ background:#e5e7eb; color:#374151; }
+  select.year-select{ font-size:0.8rem; padding:5px 6px; }
+  .row-actions{ text-align:right; }
+  .btn{
+    background:var(--navy); color:#fff; border:none; border-radius:6px; padding:8px 14px;
+    font-size:0.85rem; cursor:pointer; font-weight:600;
+  }
+  .btn.secondary{ background:#fff; color:var(--navy); border:1px solid var(--navy); }
+  .btn.danger{ background:#fff; color:var(--red); border:1px solid var(--red); padding:4px 10px; font-size:0.75rem;}
+  .btn.small{ padding:5px 10px; font-size:0.78rem; }
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media(max-width:700px){ .grid2{ grid-template-columns:1fr; } }
+  .track-card{
+    border:1px solid var(--border); border-radius:var(--radius); padding:14px; background:#fff;
+  }
+  .track-card h4{ margin:0 0 6px; color:var(--navy); }
+  .footer-note{ font-size:0.78rem; color:var(--muted); margin-top:30px; text-align:center; }
+  .empty{ padding:30px; text-align:center; color:var(--muted); }
+  .top-actions{ display:flex; justify-content:flex-end; gap:8px; margin-bottom:10px; flex-wrap:wrap; }
+  .add-row-form{ display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:8px; margin-top:10px; }
+  .add-row-form input, .add-row-form select{ width:100%; }
+  .table-wrap{ overflow-x:auto; }
+  .header-actions{ display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+  .header-actions .btn{ background:#fff; color:var(--navy); }
+  .header-actions .btn.primary{ background:var(--accent); color:#fff; }
+  .print-only{ display:none; }
+
+  /* ---------- Print / PDF export ---------- */
+  @media print{
+    body{ background:#fff; }
+    header p, .header-actions, nav.tabs, .toolbar, .top-actions, .add-row-form,
+    .row-actions, .callout, .footer-note{ display:none !important; }
+    .card:has(.add-row-form){ display:none !important; }
+    .print-only{ display:block !important; }
+    header{ background:#fff !important; color:#000; padding:0 0 10px; border-bottom:2px solid #000; }
+    header h1{ color:#000; font-size:1.3rem; }
+    .print-date{ font-size:0.8rem; color:#444; margin-top:4px; }
+    .container{ max-width:100%; padding:0; }
+    main{ padding:10px 0; }
+    .panel{ display:block !important; page-break-before:always; }
+    #panel-welcome{ page-break-before:auto; }
+    .card{ border:1px solid #ccc; box-shadow:none; break-inside:avoid; padding:10px; }
+    table{ font-size:8.5pt; table-layout:auto; }
+    th{ background:#eee !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    thead{ display:table-header-group; }
+    tr{ break-inside:avoid; }
+    select, input[type=date]{
+      border:none !important; background:none !important; -webkit-appearance:none; appearance:none;
+      padding:2px 0; color:#000;
+    }
+    .editable{ border:none; padding:2px 0; }
+    .editable:focus{ box-shadow:none; background:none; }
+    .badge-off{ display:none !important; }
+    .badge-on{ border:1px solid #999; background:#eee !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .progress-wrap{ display:none; }
+    .track-card{ break-inside:avoid; }
+    @page{ margin:14mm 12mm; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <h1>🧭 Doctoral Progress Tracker</h1>
+    <p>A personal planning tool adapted from <em>Navigating Uncertain Terrain</em> by Gabriella Wilson-Kopko. Use the tabs below to track milestones, plan semesters, set yearly goals, and look up terms.</p>
+    <div class="print-only" id="printDate"></div>
+    <div class="header-actions">
+      <button class="btn primary" id="exportPdfBtn">📄 Export as PDF</button>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs container" id="tabs">
+  <button data-tab="welcome" class="active">Welcome</button>
+  <button data-tab="milestones">Milestones &amp; Requirements</button>
+  <button data-tab="planner">Semester Planner</button>
+  <button data-tab="idp">Individual Development Plan</button>
+  <button data-tab="committee">Committee &amp; Mentors</button>
+  <button data-tab="dossier">Job Market Dossier</button>
+  <button data-tab="glossary">Glossary</button>
+</nav>
+
+<main class="container">
+
+  <!-- WELCOME -->
+  <section class="panel active" id="panel-welcome">
+    <div class="card">
+      <h2>Introduction</h2>
+      <p>Starting a doctoral program in rhetoric and composition means entering a field with its own vocabulary, culture, and unspoken expectations — and doing so largely without a map. This guide is an attempt to provide that map. It was designed for students at every stage of their PhD journey. Inside, you will find year-by-year planning templates, explanations of major milestones like comprehensive exams and the prospectus, career-track guides for six different professional paths in the field, and a glossary that defines the acronyms and terms that tend to get used without explanation.</p>
+      <p>Nothing in this document is a substitute for conversations with your advisor — requirements vary by program, and your advisor is always your best source for specifics. Think of this guide as a starting point for those conversations, a reference you can return to throughout your five years, and a reminder that the path to a PhD is rarely linear but is absolutely navigable.</p>
+      <p>These appendices are designed to help graduate students plan Years 1–5 in the program. Use them as guides, not strict rules. Consult your advisor and program handbook to adapt timelines and deadlines to your institution.</p>
+    </div>
+    <div class="callout">
+      <strong>This file lives entirely in your browser.</strong> Your progress is saved automatically to this device's local storage. It will not sync across devices or browsers, so if you switch computers, use <strong>Export backup</strong> (bottom of the Milestones tab) to save a copy and <strong>Import backup</strong> to restore it elsewhere.
+    </div>
+    <div class="callout">
+      <strong>📄 Export as PDF</strong> (button at the top of the page) opens your browser's print dialog with a clean, printer-friendly layout of everything you've filled in across all four tabs — buttons and edit boxes are hidden automatically. Choose <strong>"Save as PDF"</strong> as the destination/printer instead of printing on paper. If you filter the Milestones tab by track, year, type, or search first, only that filtered set will appear in the PDF.
+    </div>
+    <div class="card">
+      <h2>What's inside</h2>
+      <p><strong>Milestones &amp; Requirements</strong> — every required and suggested item across Years 1–8+, filterable by your career track (tenure-track, teaching/WPA, writing center, industry, technical &amp; professional communication, or community-engaged public rhetorics). Every field is editable, and you can delete any item that doesn't apply to you.</p>
+      <p><strong>Semester Planner</strong> — a term-by-term grid for courses and other responsibilities, Years 1–5, fully editable and expandable.</p>
+      <p><strong>Individual Development Plan (IDP)</strong> — yearly goals across degree progress, skills, career, personal wellbeing, and funding, plus a summary table that fills in automatically as you go.</p>
+      <p><strong>Glossary</strong> — key acronyms and terms used throughout (RCWS, WPA, IDP, prospectus, etc.), plus room to add your own.</p>
+    </div>
+    <div class="card">
+      <h2>Rhetoric and Composition Tracks</h2>
+      <p class="muted">These are the six career-track paths from the article. Pick one (or several) in the Milestones tab to filter the tracker down to just your path — General items always show alongside your track, since they apply to everyone.</p>
+      <div class="grid2" id="trackCards"></div>
+    </div>
+    <div class="footer-note">Adapted from "Navigating Uncertain Terrain" by Gabriella Wilson-Kopko. This is a planning aid, not an official program document — always confirm requirements and deadlines with your graduate program and registrar.</div>
+  </section>
+
+  <!-- MILESTONES -->
+  <section class="panel" id="panel-milestones">
+    <div class="progress-wrap">
+      <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:4px;">
+        <span id="progressLabel">0 / 0 complete</span>
+        <span class="muted">Filtered view</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    </div>
+    <div class="toolbar">
+      <span class="muted" style="font-size:0.8rem;">Track (click a badge in any row to toggle it; selecting a filter here always includes General items too):</span>
+    </div>
+    <div class="toolbar">
+      <span id="trackChips"></span>
+    </div>
+    <div class="toolbar">
+      <span class="muted" style="font-size:0.8rem;">Year:</span>
+      <select id="yearFilter"><option value="">All years</option></select>
+      <span class="muted" style="font-size:0.8rem;">Type:</span>
+      <select id="typeFilter">
+        <option value="">All types</option>
+        <option value="Required">Required</option>
+        <option value="Suggested">Suggested</option>
+        <option value="Milestone">Milestone/Assessment</option>
+        <option value="Institutional">Institutional Deadline</option>
+      </select>
+      <input type="text" class="search" id="searchBox" placeholder="Search items or notes…">
+    </div>
+    <div class="table-wrap card" style="padding:0;">
+      <table id="milestonesTable">
+        <thead>
+          <tr>
+            <th style="width:9%;">Status</th>
+            <th style="width:16%;">Item</th>
+            <th style="width:7%;">Year</th>
+            <th style="width:9%;">Type</th>
+            <th style="width:12%;">Track</th>
+            <th style="width:12%;">Evidence / Deliverable</th>
+            <th style="width:9%;">Reviewers</th>
+            <th style="width:8%;">Deadline</th>
+            <th style="width:12%;">Access Planning Note</th>
+            <th style="width:12%;">Notes</th>
+            <th style="width:6%;"></th>
+          </tr>
+        </thead>
+        <tbody id="milestonesBody"></tbody>
+      </table>
+      <div class="empty" id="milestonesEmpty" style="display:none;">No items match your filters.</div>
+    </div>
+    <div class="card">
+      <h3>Add your own item</h3>
+      <div class="add-row-form">
+        <input type="text" id="newItem" placeholder="Item name">
+        <select id="newYear"></select>
+        <select id="newType">
+          <option value="Required">Required</option>
+          <option value="Suggested">Suggested</option>
+          <option value="Milestone">Milestone/Assessment</option>
+          <option value="Institutional">Institutional Deadline</option>
+        </select>
+        <select id="newTrack"></select>
+        <button class="btn small" id="addMilestoneBtn">Add item</button>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="btn secondary small" id="restoreMilestonesBtn">Restore deleted items</button>
+      <button class="btn secondary small" id="exportBtn">Export backup (.json)</button>
+      <label class="btn secondary small" style="cursor:pointer;">Import backup
+        <input type="file" id="importFile" accept="application/json" style="display:none;">
+      </label>
+      <button class="btn danger" id="resetBtn">Reset all progress</button>
+    </div>
+  </section>
+
+  <!-- PLANNER -->
+  <section class="panel" id="panel-planner">
+    <div class="card">
+      <h2>Semester-by-Semester Planner (Years 1–5+)</h2>
+      <p class="muted">Fill in your actual course names and other responsibilities each term. Students in Year 3+ typically register for very specific courses and credits — confirm with your institution. Every field is editable; delete a term if it doesn't apply, or add extra terms below.</p>
+    </div>
+    <div class="table-wrap card" style="padding:0;">
+      <table id="plannerTable">
+        <colgroup>
+          <col style="width:11%"><col style="width:8%"><col style="width:15%">
+          <col style="width:15%"><col style="width:15%"><col style="width:19%">
+          <col style="width:9%"><col style="width:8%">
+        </colgroup>
+        <thead>
+          <tr>
+            <th>Term</th><th>Year</th><th>Course 1</th><th>Course 2</th><th>Course 3</th>
+            <th>Other Responsibilities</th><th>Status</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="plannerBody"></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Add a term</h3>
+      <div class="add-row-form">
+        <input type="text" id="newTermName" placeholder="e.g., Fall Y6">
+        <select id="newTermYear"></select>
+        <button class="btn small" id="addTermRowBtn">Add term</button>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="btn secondary small" id="restorePlannerBtn">Restore deleted terms</button>
+    </div>
+  </section>
+
+  <!-- IDP -->
+  <section class="panel" id="panel-idp">
+    <div class="card">
+      <h2>Individual Development Plan</h2>
+      <p class="muted">Set goals for each year across degree progress, skills, career, personal wellbeing, and funding. Revisit and edit at the start of each academic year. The summary table below fills in automatically as you type.</p>
+    </div>
+    <div id="idpCards"></div>
+    <div class="card">
+      <h3>Summary Table</h3>
+      <p class="muted">This updates automatically from the cards above — it's a read-only rollup, so make your edits up there.</p>
+    </div>
+    <div class="table-wrap card" style="padding:0;">
+      <table id="idpTable">
+        <thead>
+          <tr>
+            <th style="width:8%;">Year</th>
+            <th style="width:15%;">Degree Goals</th>
+            <th style="width:15%;">Skills Goals</th>
+            <th style="width:15%;">Career Goals</th>
+            <th style="width:15%;">Personal Goals</th>
+            <th style="width:15%;">Funding Goals</th>
+            <th style="width:17%;">Access Planning</th>
+          </tr>
+        </thead>
+        <tbody id="idpTableBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- COMMITTEE & MENTORS -->
+  <section class="panel" id="panel-committee">
+    <div class="card">
+      <h2>Committee Selection Summary</h2>
+      <p>Aim for a committee with (1) subject expertise, (2) methodological expertise, (3) intellectual alignment, and (4) an external reader when appropriate.</p>
+    </div>
+    <div class="callout">
+      <strong>Important note:</strong> If you don't mesh with the faculty member at your university who is supposed to be an expert in your subject matter, don't work with them. Identify another faculty member willing to support your research and find other ways to develop your knowledge of the research subject through other mentoring relationships.
+    </div>
+    <div class="card">
+      <h2>Mentor Roles</h2>
+      <p class="muted">Fill in who fills each role for you, and any notes about that relationship. Delete a role that doesn't apply, or add your own below.</p>
+    </div>
+    <div class="table-wrap card" style="padding:0;">
+      <table id="mentorsTable">
+        <colgroup>
+          <col style="width:22%"><col style="width:28%"><col style="width:40%"><col style="width:10%">
+        </colgroup>
+        <thead><tr><th>Mentor Role</th><th>Who Fills This Role</th><th>Notes</th><th></th></tr></thead>
+        <tbody id="mentorsBody"></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Add a mentor role</h3>
+      <div class="add-row-form">
+        <input type="text" id="newMentorRole" placeholder="Role name">
+        <button class="btn small" id="addMentorBtn">Add role</button>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="btn secondary small" id="restoreMentorsBtn">Restore deleted roles</button>
+    </div>
+  </section>
+
+  <!-- JOB MARKET DOSSIER -->
+  <section class="panel" id="panel-dossier">
+    <div class="card">
+      <h2>Job Market Dossier</h2>
+      <p><strong>What a dossier is:</strong> a curated packet of materials used when applying for academic jobs.</p>
+      <p class="muted">Typical contents are listed below. Track your progress on each, and use the "Audience &amp; Length" column to note guidance as you learn it from your advisor or program (for example: teaching philosophy — 1 page; research statement — 2 pages). Delete anything that doesn't apply to your search, or add items below.</p>
+    </div>
+    <div class="table-wrap card" style="padding:0;">
+      <table id="dossierTable">
+        <colgroup>
+          <col style="width:10%"><col style="width:22%"><col style="width:20%"><col style="width:38%"><col style="width:10%">
+        </colgroup>
+        <thead><tr><th>Status</th><th>Item</th><th>Audience &amp; Length</th><th>Notes</th><th></th></tr></thead>
+        <tbody id="dossierBody"></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Add a dossier item</h3>
+      <div class="add-row-form">
+        <input type="text" id="newDossierItem" placeholder="Item name">
+        <button class="btn small" id="addDossierBtn">Add item</button>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="btn secondary small" id="restoreDossierBtn">Restore deleted items</button>
+    </div>
+  </section>
+
+  <!-- GLOSSARY -->
+  <section class="panel" id="panel-glossary">
+    <div class="table-wrap card" style="padding:0;">
+      <table id="glossaryTable">
+        <thead><tr><th style="width:220px;">Term</th><th>Definition</th><th></th></tr></thead>
+        <tbody id="glossaryBody"></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Add a term</h3>
+      <div class="add-row-form">
+        <input type="text" id="newTerm" placeholder="Term or acronym">
+        <input type="text" id="newDef" placeholder="Definition">
+        <button class="btn small" id="addTermBtn">Add term</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+/* ---------- Reference data (from "Navigating Uncertain Terrain") ---------- */
+const TRACKS = {
+  General:"General (All Tracks)",
+  Tenure:"Tenure Track (Rhet/Comp)",
+  Teaching:"Teaching Track & WPA",
+  WC:"Writing Center",
+  Industry:"Industry",
+  TPC:"Technical & Professional Comm",
+  CEPR:"Community-Engaged Public Rhetorics"
+};
+const TRACK_SHORT = {General:"Gen", Tenure:"Ten", Teaching:"Tch", WC:"WC", Industry:"Ind", TPC:"TPC", CEPR:"CEPR"};
+const TRACK_DESC = {
+  Tenure:"For students aiming for a tenure-track research position; emphasizes publications, conference presence, and an upper-level course.",
+  Teaching:"For students prioritizing teaching careers or administrative roles (WPA); emphasizes diverse teaching prep and program administration experience.",
+  WC:"For students focused on writing center research and administration; emphasizes writing center leadership and assessment.",
+  Industry:"For students focused on professional careers outside academia.",
+  TPC:"For students focused on technical communication in industry or academia; emphasizes technical writing courses and applied projects.",
+  CEPR:"For students working with community partners and service-learning; emphasizes sustained partnerships and community projects."
+};
+const YEARS = ["Year 1","Year 2","Year 3","Year 4","Year 5","Year 6","Year 7","Year 8+"];
+const TYPE_LABEL = {Required:"Required",Suggested:"Suggested",Milestone:"Milestone/Assessment",Institutional:"Institutional Deadline"};
+
+const DEFAULT_MILESTONES = [
+{id:1,item:"Coursework; Register for 18 credits",yr:"Year 1",trk:["General"],typ:"Required",ev:"",rev:"",note:"Suggested: Attend a pre-conference workshop; join a professional society",access:""},
+{id:2,item:"Coursework complete; Prepare for portfolio/comps",yr:"Year 2",trk:["General"],typ:"Required",ev:"",rev:"",note:"Suggested: Begin manuscript; Attend regional conference; Departmental service",access:""},
+{id:3,item:"Portfolio/comps; Prospectus preparation",yr:"Year 3",trk:["General"],typ:"Required",ev:"",rev:"",note:"Suggested: Submit first publication; Take on admin role (WPA/WC/WAC)",access:""},
+{id:4,item:"Dissertation data collection/writing",yr:"Year 4",trk:["General"],typ:"Required",ev:"",rev:"",note:"Suggested: Job market prep seminar; Attend national conference; Draft/revise publication",access:""},
+{id:5,item:"Dissertation defense; Job market dossier finalization",yr:"Year 5",trk:["General"],typ:"Required",ev:"",rev:"",note:"Suggested: Submit second publication; National service commitments",access:""},
+{id:6,item:"Teaching readiness",yr:"Year 1",trk:["General"],typ:"Milestone",ev:"Course syllabus; teaching philosophy; observation",rev:"Teaching mentor",access:"Online contingency accommodation for high pain days",note:"Timing: Years 1–5 (ongoing)"},
+{id:7,item:"Portfolio / Comps",yr:"Year 3",trk:["General"],typ:"Milestone",ev:"Portfolio artifacts; exam results",rev:"Committee",access:"1.5x extension of comprehensive exams",note:"Timing: End Year 2 or Year 3"},
+{id:8,item:"Prospectus",yr:"Year 3",trk:["General"],typ:"Milestone",ev:"Prospectus document; IRB if needed",rev:"Committee",access:"Defense questions in advance",note:"Timing: 6–12 months post-comps"},
+{id:9,item:"Dissertation",yr:"Year 4",trk:["General"],typ:"Milestone",ev:"Dissertation chapters; defense",rev:"Committee",access:"Writing groups",note:"Timing: Year 4–end"},
+{id:10,item:"Job market dossier",yr:"Year 5",trk:["General"],typ:"Milestone",ev:"CV; letters; statements; sample syllabi",rev:"Placement committee",access:"Requesting accommodations during campus visits",note:"Timing: Final year"},
+{id:11,item:"Register for 18 credits",yr:"Year 1",trk:["General"],typ:"Institutional",ev:"",rev:"",note:"Deadline: [Institutional deadline — fill in from your registrar]",access:""},
+{id:12,item:"Register for 18 credits",yr:"Year 2",trk:["General"],typ:"Institutional",ev:"",rev:"",note:"Deadline: [Institutional deadline — fill in from your registrar]",access:""},
+{id:13,item:"Submit comps paperwork",yr:"Year 3",trk:["General"],typ:"Institutional",ev:"",rev:"",note:"Deadline: [Program deadline — fill in]",access:""},
+{id:14,item:"Submit prospectus paperwork",yr:"Year 4",trk:["General"],typ:"Institutional",ev:"",rev:"",note:"Deadline: [Program deadline — fill in]",access:""},
+{id:15,item:"Submit dissertation defense paperwork; intent to graduate",yr:"Year 5",trk:["General"],typ:"Institutional",ev:"",rev:"",note:"Deadline: [Registrar / Program deadlines — fill in]",access:""},
+{id:16,item:"Dissertation Research and Professional Development",yr:"Year 6",trk:["General"],typ:"Suggested",ev:"",rev:"",note:"For extended (6–8 year) timelines. Continue dissertation research; present at conference(s); develop teaching portfolio; draft publications.",access:""},
+{id:17,item:"Dissertation Research and Professional Development",yr:"Year 7",trk:["General"],typ:"Suggested",ev:"",rev:"",note:"For extended (6–8 year) timelines. Complete dissertation chapters; prepare job market materials; attend national conference(s); apply for fellowships; submit publication.",access:""},
+{id:18,item:"Defend Dissertation, Continued Scholarship, Job Market",yr:"Year 8+",trk:["General"],typ:"Suggested",ev:"",rev:"",note:"For extended (6–8 year) timelines. Defend dissertation; finalize job market dossier; engage in professional service; submit or revise publication.",access:""},
+{id:19,item:"Coursework",yr:"Year 1",trk:["Tenure"],typ:"Required",ev:"",rev:"",note:"Suggested: Pre-conference workshop",access:""},
+{id:20,item:"Coursework complete",yr:"Year 2",trk:["Tenure"],typ:"Required",ev:"",rev:"",note:"Suggested: Begin manuscript; Regional conference; Dept service",access:""},
+{id:21,item:"Portfolio/comps",yr:"Year 3",trk:["Tenure"],typ:"Required",ev:"",rev:"",note:"Suggested: Submit publication; Admin role",access:""},
+{id:22,item:"Dissertation writing",yr:"Year 4",trk:["Tenure"],typ:"Required",ev:"",rev:"",note:"Suggested: Draft second publication; Teach upper-level course",access:""},
+{id:23,item:"Defend; Job market dossier",yr:"Year 5",trk:["Tenure"],typ:"Required",ev:"",rev:"",note:"Suggested: Submit revised/second publication; National service",access:""},
+{id:24,item:"Coursework",yr:"Year 1",trk:["Teaching"],typ:"Required",ev:"",rev:"",note:"Suggested: Pre-conference workshop",access:""},
+{id:25,item:"Coursework complete",yr:"Year 2",trk:["Teaching"],typ:"Required",ev:"",rev:"",note:"Suggested: Begin manuscript; Regional conference; Admin role",access:""},
+{id:26,item:"Portfolio/comps; Develop upper-level course",yr:"Year 3",trk:["Teaching"],typ:"Required",ev:"",rev:"",note:"Suggested: Submit publication; Dept service",access:""},
+{id:27,item:"Dissertation work",yr:"Year 4",trk:["Teaching"],typ:"Required",ev:"",rev:"",note:"Suggested: Admin role; Teach upper-level course",access:""},
+{id:28,item:"Defend; Job market dossier",yr:"Year 5",trk:["Teaching"],typ:"Required",ev:"",rev:"",note:"Suggested: National service",access:""},
+{id:29,item:"Coursework",yr:"Year 1",trk:["WC"],typ:"Required",ev:"",rev:"",note:"Suggested: Pre-conference workshop",access:""},
+{id:30,item:"Coursework complete",yr:"Year 2",trk:["WC"],typ:"Required",ev:"",rev:"",note:"Suggested: Begin manuscript; Regional conference",access:""},
+{id:31,item:"Portfolio/comps",yr:"Year 3",trk:["WC"],typ:"Required",ev:"",rev:"",note:"Suggested: Submit publication; Develop upper-level course",access:""},
+{id:32,item:"Dissertation work",yr:"Year 4",trk:["WC"],typ:"Required",ev:"",rev:"",note:"Suggested: Writing center admin role; conduct assessment",access:""},
+{id:33,item:"Defend",yr:"Year 5",trk:["WC"],typ:"Required",ev:"",rev:"",note:"Suggested: Teach upper-level course; National service",access:""},
+{id:34,item:"Coursework",yr:"Year 1",trk:["Industry"],typ:"Required",ev:"",rev:"",note:"Suggested: Attend industry-adjacent workshops (UX writing, content strategy, information design); Join a professional organization outside academia",access:""},
+{id:35,item:"Coursework complete",yr:"Year 2",trk:["Industry"],typ:"Required",ev:"",rev:"",note:"Suggested: Begin building an industry-facing portfolio; conduct informational interviews with alumni working outside academia",access:""},
+{id:36,item:"Portfolio/comps",yr:"Year 3",trk:["Industry"],typ:"Required",ev:"",rev:"",note:"Suggested: Complete an internship or practicum in an industry role; attend an industry (not academic) conference",access:""},
+{id:37,item:"Dissertation work",yr:"Year 4",trk:["Industry"],typ:"Required",ev:"",rev:"",note:"Suggested: Consider a relevant certification (UX research, project management, data analysis); Teach technical course",access:""},
+{id:38,item:"Defend",yr:"Year 5",trk:["Industry"],typ:"Required",ev:"",rev:"",note:"Suggested: Freelance or consulting projects",access:""},
+{id:39,item:"Coursework",yr:"Year 1",trk:["TPC"],typ:"Required",ev:"",rev:"",note:"Suggested: Pre-conference workshop",access:""},
+{id:40,item:"Coursework complete",yr:"Year 2",trk:["TPC"],typ:"Required",ev:"",rev:"",note:"Suggested: Begin manuscript; Internship",access:""},
+{id:41,item:"Portfolio/comps",yr:"Year 3",trk:["TPC"],typ:"Required",ev:"",rev:"",note:"Suggested: Submit publication; Admin/research role",access:""},
+{id:42,item:"Dissertation work",yr:"Year 4",trk:["TPC"],typ:"Required",ev:"",rev:"",note:"Suggested: Draft/revise publication; Teach technical course",access:""},
+{id:43,item:"Defend",yr:"Year 5",trk:["TPC"],typ:"Required",ev:"",rev:"",note:"Suggested: Submit publication; National service",access:""},
+{id:44,item:"Coursework",yr:"Year 1",trk:["CEPR"],typ:"Required",ev:"",rev:"",note:"Suggested: Pre-conference workshop",access:""},
+{id:45,item:"Coursework complete",yr:"Year 2",trk:["CEPR"],typ:"Required",ev:"",rev:"",note:"Suggested: Begin manuscript; Regional conference",access:""},
+{id:46,item:"Portfolio/comps; Community engagement",yr:"Year 3",trk:["CEPR"],typ:"Required",ev:"",rev:"",note:"Suggested: Submit publication; Develop service-learning course",access:""},
+{id:47,item:"Dissertation work",yr:"Year 4",trk:["CEPR"],typ:"Required",ev:"",rev:"",note:"Suggested: Community partnership activities",access:""},
+{id:48,item:"Defend",yr:"Year 5",trk:["CEPR"],typ:"Required",ev:"",rev:"",note:"Suggested: National service; Continued engagement",access:""}
+];
+
+const DEFAULT_PLANNER = [
+{id:1,term:"Fall Y1",yr:"Year 1",c1:"",c2:"",c3:"",other:""},
+{id:2,term:"Spring Y1",yr:"Year 1",c1:"",c2:"",c3:"",other:""},
+{id:3,term:"Fall Y2",yr:"Year 2",c1:"",c2:"",c3:"",other:""},
+{id:4,term:"Spring Y2",yr:"Year 2",c1:"",c2:"",c3:"",other:""},
+{id:5,term:"Fall Y3",yr:"Year 3",c1:"Confirm specific course/credit requirements with your institution",c2:"n/a",c3:"n/a",other:"Exams; Prospectus prep"},
+{id:6,term:"Spring Y3",yr:"Year 3",c1:"",c2:"n/a",c3:"n/a",other:"Prospectus defense; Begin dissertation"},
+{id:7,term:"Fall Y4",yr:"Year 4",c1:"",c2:"n/a",c3:"n/a",other:"Dissertation writing; Conferences"},
+{id:8,term:"Spring Y4",yr:"Year 4",c1:"",c2:"n/a",c3:"n/a",other:"Dissertation writing"},
+{id:9,term:"Fall Y5",yr:"Year 5",c1:"",c2:"n/a",c3:"n/a",other:"Job market prep; Dossier finalization"}
+];
+
+const DEFAULT_IDP = [
+{id:1,yr:"Year 1",degree:"Coursework progress",skills:"Design syllabus",career:"Join professional society",personal:"Wellness habit",funding:"TA/RA funding",access:"Online contingency accommodation for high pain days"},
+{id:2,yr:"Year 2",degree:"Coursework complete",skills:"Assessment design",career:"Present at conference",personal:"Build social network",funding:"Conference funding",access:"Online contingency for high pain days"},
+{id:3,yr:"Year 3",degree:"Comps passed",skills:"Grant writing",career:"Publish first article",personal:"Sleep routine",funding:"Fellowship applications",access:"1.5x extension on comp exams and questions in advance"},
+{id:4,yr:"Year 4",degree:"Prospectus approved",skills:"Fellowship applications",career:"Prepare job materials",personal:"Daily walk",funding:"Dissertation fellowship",access:"Writing groups"},
+{id:5,yr:"Year 5",degree:"Dissertation defense",skills:"Job talk practice",career:"Apply for positions",personal:"Reflect on career",funding:"Finalize funding",access:"Requesting accommodations during campus visits"}
+];
+
+const DEFAULT_GLOSSARY = [
+{term:"RCWS",def:"Rhetoric, Composition, and Writing Studies"},
+{term:"WPA",def:"Writing Program Administrator"},
+{term:"WC",def:"Writing Center"},
+{term:"WAC",def:"Writing Across the Curriculum"},
+{term:"CCCC",def:"Conference on College Composition and Communication (major national conference in the field)"},
+{term:"RSA",def:"Rhetoric Society of America (major national conference in the field)"},
+{term:"RA",def:"Research Assistant"},
+{term:"TA",def:"Teaching Assistant"},
+{term:"IDP",def:"Individual Development Plan"},
+{term:"Portfolio",def:"A curated set of teaching artifacts and reflective statements used for assessment or exams"},
+{term:"Prospectus",def:"A 3–10+ page document describing dissertation questions, methods, and significance; read by your committee"},
+{term:"Pre-conference workshop",def:"A short, focused session held before a conference; often requires separate registration"},
+{term:"Service",def:"Departmental or professional contributions such as committee work, event organization, or peer review"},
+{term:"Job market dossier",def:"A packet of materials (CV, letters, statements, samples) used when applying for academic jobs"}
+];
+
+const DEFAULT_MENTORS = [
+{id:1,role:"General mentor",who:"",notes:""},
+{id:2,role:"Teaching mentor",who:"",notes:""},
+{id:3,role:"Expert-specific mentor",who:"",notes:""},
+{id:4,role:"Peer mentor",who:"",notes:""},
+{id:5,role:"Administrative mentor",who:"",notes:""}
+];
+
+const DEFAULT_DOSSIER = [
+{id:1,item:"Cover letter(s)",note:""},
+{id:2,item:"CV",note:""},
+{id:3,item:"Teaching philosophy",note:"~1 page"},
+{id:4,item:"Research statement",note:"~2 pages"},
+{id:5,item:"Diversity statement",note:""},
+{id:6,item:"Administrative statement (if relevant)",note:""},
+{id:7,item:"Dissertation abstract",note:""},
+{id:8,item:"Teaching portfolio",note:""},
+{id:9,item:"Writing sample(s)",note:""},
+{id:10,item:"Transcripts",note:""},
+{id:11,item:"Reference letters",note:""}
+];
+
+/* ---------- Persistence ---------- */
+const STORE_KEY = "nut-doctoral-tracker-v1";
+function loadState(){
+  let s = null;
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(raw) s = JSON.parse(raw);
+  }catch(e){}
+  if(!s) s = {};
+  s.milestoneOverrides = s.milestoneOverrides || {};
+  s.milestoneCustom = s.milestoneCustom || [];
+  s.deletedMilestones = s.deletedMilestones || [];
+  s.plannerOverrides = s.plannerOverrides || {};
+  s.plannerCustom = s.plannerCustom || [];
+  s.deletedPlanner = s.deletedPlanner || [];
+  s.idpOverrides = s.idpOverrides || {};
+  s.glossaryCustom = s.glossaryCustom || [];
+  s.activeTracks = s.activeTracks || [];
+  s.mentorOverrides = s.mentorOverrides || {};
+  s.mentorCustom = s.mentorCustom || [];
+  s.deletedMentors = s.deletedMentors || [];
+  s.dossierOverrides = s.dossierOverrides || {};
+  s.dossierCustom = s.dossierCustom || [];
+  s.deletedDossier = s.deletedDossier || [];
+  return s;
+}
+let state = loadState();
+function saveState(){ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
+
+function mOverride(id){ return state.milestoneOverrides[id] || {}; }
+function setMOverride(id, field, value){
+  if(!state.milestoneOverrides[id]) state.milestoneOverrides[id] = {};
+  state.milestoneOverrides[id][field] = value;
+  saveState();
+}
+function allMilestones(){ return [...DEFAULT_MILESTONES, ...state.milestoneCustom]; }
+function effectiveMilestone(m){
+  const ov = mOverride(m.id);
+  return {
+    id:m.id,
+    item: ov.item ?? m.item,
+    yr: ov.yr ?? m.yr,
+    trk: ov.trk ?? m.trk,
+    typ: ov.typ ?? m.typ,
+    ev: ov.ev ?? m.ev,
+    rev: ov.rev ?? m.rev,
+    note: ov.note ?? m.note,
+    access: ov.access ?? m.access,
+    deadline: ov.deadline ?? "",
+    status: ov.status || "Not started"
+  };
+}
+
+function pOverride(id){ return state.plannerOverrides[id] || {}; }
+function setPOverride(id, field, value){
+  if(!state.plannerOverrides[id]) state.plannerOverrides[id] = {};
+  state.plannerOverrides[id][field] = value;
+  saveState();
+}
+function allPlanner(){ return [...DEFAULT_PLANNER, ...state.plannerCustom]; }
+function effectivePlanner(p){
+  const ov = pOverride(p.id);
+  return {
+    id:p.id,
+    term: ov.term ?? p.term,
+    yr: ov.yr ?? p.yr,
+    c1: ov.c1 ?? p.c1,
+    c2: ov.c2 ?? p.c2,
+    c3: ov.c3 ?? p.c3,
+    other: ov.other ?? p.other,
+    status: ov.status || "Not started"
+  };
+}
+
+function iOverride(id){ return state.idpOverrides[id] || {}; }
+function setIOverride(id, field, value){
+  if(!state.idpOverrides[id]) state.idpOverrides[id] = {};
+  state.idpOverrides[id][field] = value;
+  saveState();
+}
+
+function mnOverride(id){ return state.mentorOverrides[id] || {}; }
+function setMnOverride(id, field, value){
+  if(!state.mentorOverrides[id]) state.mentorOverrides[id] = {};
+  state.mentorOverrides[id][field] = value;
+  saveState();
+}
+function allMentors(){ return [...DEFAULT_MENTORS, ...state.mentorCustom]; }
+function effectiveMentor(m){
+  const ov = mnOverride(m.id);
+  return { id:m.id, role: ov.role ?? m.role, who: ov.who ?? m.who, notes: ov.notes ?? m.notes };
+}
+
+function dOverride(id){ return state.dossierOverrides[id] || {}; }
+function setDOverride(id, field, value){
+  if(!state.dossierOverrides[id]) state.dossierOverrides[id] = {};
+  state.dossierOverrides[id][field] = value;
+  saveState();
+}
+function allDossier(){ return [...DEFAULT_DOSSIER, ...state.dossierCustom]; }
+function effectiveDossier(d){
+  const ov = dOverride(d.id);
+  return { id:d.id, item: ov.item ?? d.item, note: ov.note ?? d.note, notes: ov.notes ?? d.notes ?? "", status: ov.status || "Not started" };
+}
+
+/* ---------- Tabs ---------- */
+document.getElementById('tabs').addEventListener('click', e=>{
+  if(e.target.tagName !== 'BUTTON') return;
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.remove('active'));
+  e.target.classList.add('active');
+  const tab = e.target.dataset.tab;
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+tab).classList.add('active');
+});
+
+/* ---------- Welcome: track cards ---------- */
+function renderTrackCards(){
+  const wrap = document.getElementById('trackCards');
+  wrap.innerHTML = Object.keys(TRACK_DESC).map(k=>`
+    <div class="track-card">
+      <h4>${TRACKS[k]}</h4>
+      <p class="muted" style="margin:0;">${TRACK_DESC[k]}</p>
+    </div>`).join('');
+}
+
+/* ---------- Milestones tab ---------- */
+function renderFilterControls(){
+  const chipWrap = document.getElementById('trackChips');
+  chipWrap.innerHTML = Object.keys(TRACKS).map(k=>
+    `<span class="chip" data-track="${k}">${TRACKS[k]}</span>`
+  ).join('');
+  chipWrap.querySelectorAll('.chip').forEach(chip=>{
+    if(state.activeTracks.includes(chip.dataset.track)) chip.classList.add('active');
+    chip.addEventListener('click', ()=>{
+      const t = chip.dataset.track;
+      const idx = state.activeTracks.indexOf(t);
+      if(idx>-1) state.activeTracks.splice(idx,1); else state.activeTracks.push(t);
+      saveState();
+      chip.classList.toggle('active');
+      renderMilestones();
+    });
+  });
+
+  const yf = document.getElementById('yearFilter');
+  yf.innerHTML = '<option value="">All years</option>' + YEARS.map(y=>`<option value="${y}">${y}</option>`).join('');
+  yf.addEventListener('change', renderMilestones);
+  document.getElementById('typeFilter').addEventListener('change', renderMilestones);
+  document.getElementById('searchBox').addEventListener('input', renderMilestones);
+
+  const ny = document.getElementById('newYear');
+  ny.innerHTML = YEARS.map(y=>`<option value="${y}">${y}</option>`).join('');
+  const nt = document.getElementById('newTrack');
+  nt.innerHTML = Object.keys(TRACKS).map(k=>`<option value="${k}">${TRACKS[k]}</option>`).join('');
+
+  const nty = document.getElementById('newTermYear');
+  if(nty) nty.innerHTML = YEARS.map(y=>`<option value="${y}">${y}</option>`).join('');
+}
+
+function renderTrackToggles(id, currentTrk){
+  return Object.keys(TRACKS).map(k=>{
+    const active = currentTrk.includes(k);
+    return `<span class="badge ${k} ${active?'badge-on':'badge-off'}" onclick="toggleMilestoneTrack(${id}, '${k}')" title="${TRACKS[k]} — click to toggle">${TRACK_SHORT[k]}</span>`;
+  }).join('');
+}
+function toggleMilestoneTrack(id, key){
+  const m = allMilestones().find(x=>x.id===id);
+  if(!m) return;
+  const ov = mOverride(id);
+  let trk = (ov.trk ?? m.trk).slice();
+  const idx = trk.indexOf(key);
+  if(idx>-1){ if(trk.length>1) trk.splice(idx,1); }
+  else trk.push(key);
+  setMOverride(id, 'trk', trk);
+  renderMilestones();
+}
+
+function renderMilestones(){
+  const activeTracks = state.activeTracks;
+  const yearVal = document.getElementById('yearFilter').value;
+  const typeVal = document.getElementById('typeFilter').value;
+  const q = document.getElementById('searchBox').value.trim().toLowerCase();
+
+  let items = allMilestones()
+    .filter(m => !state.deletedMilestones.includes(m.id))
+    .map(effectiveMilestone)
+    .filter(em=>{
+      if(activeTracks.length){
+        const matchesTrack = em.trk.some(t=>activeTracks.includes(t)) || em.trk.includes('General');
+        if(!matchesTrack) return false;
+      }
+      if(yearVal && em.yr !== yearVal) return false;
+      if(typeVal && em.typ !== typeVal) return false;
+      if(q){
+        const hay = (em.item+" "+em.note+" "+em.access+" "+em.ev+" "+em.rev).toLowerCase();
+        if(!hay.includes(q)) return false;
+      }
+      return true;
+    });
+
+  const body = document.getElementById('milestonesBody');
+  const empty = document.getElementById('milestonesEmpty');
+  if(items.length===0){ body.innerHTML=''; empty.style.display='block'; }
+  else { empty.style.display='none'; }
+
+  body.innerHTML = items.map(em=>{
+    return `<tr data-id="${em.id}">
+      <td><select class="status" data-val="${em.status}" onchange="onStatusChange(${em.id}, this.value, this)">
+          <option ${em.status==='Not started'?'selected':''}>Not started</option>
+          <option ${em.status==='In progress'?'selected':''}>In progress</option>
+          <option ${em.status==='Done'?'selected':''}>Done</option>
+        </select></td>
+      <td><div class="editable" contenteditable="true" onblur="onMilestoneEdit(${em.id}, 'item', this.innerText)">${escapeHtml(em.item)}</div></td>
+      <td><select class="year-select" onchange="onMilestoneEdit(${em.id}, 'yr', this.value)">
+          ${YEARS.map(y=>`<option ${em.yr===y?'selected':''}>${y}</option>`).join('')}
+        </select></td>
+      <td><select class="type-select type-${em.typ}" onchange="onMilestoneTypeChange(${em.id}, this.value, this)">
+          ${Object.keys(TYPE_LABEL).map(t=>`<option value="${t}" ${em.typ===t?'selected':''}>${TYPE_LABEL[t]}</option>`).join('')}
+        </select></td>
+      <td>${renderTrackToggles(em.id, em.trk)}</td>
+      <td><div class="editable" contenteditable="true" onblur="onMilestoneEdit(${em.id}, 'ev', this.innerText)">${escapeHtml(em.ev)}</div></td>
+      <td><div class="editable" contenteditable="true" onblur="onMilestoneEdit(${em.id}, 'rev', this.innerText)">${escapeHtml(em.rev)}</div></td>
+      <td><input type="date" value="${em.deadline}" onchange="onMilestoneEdit(${em.id}, 'deadline', this.value)"></td>
+      <td><div class="editable" contenteditable="true" onblur="onMilestoneEdit(${em.id}, 'access', this.innerText)">${escapeHtml(em.access)}</div></td>
+      <td><div class="editable" contenteditable="true" onblur="onMilestoneEdit(${em.id}, 'note', this.innerText)">${escapeHtml(em.note)}</div></td>
+      <td class="row-actions"><button class="btn danger" onclick="deleteMilestone(${em.id})">Delete</button></td>
+    </tr>`;
+  }).join('');
+
+  const total = items.length;
+  const done = items.filter(em=> em.status==='Done').length;
+  document.getElementById('progressLabel').textContent = `${done} / ${total} complete`;
+  document.getElementById('progressFill').style.width = total? (done/total*100)+'%' : '0%';
+}
+function escapeHtml(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function onStatusChange(id, val, el){
+  setMOverride(id, 'status', val);
+  el.setAttribute('data-val', val);
+  renderMilestones();
+}
+function onMilestoneTypeChange(id, val, el){
+  setMOverride(id, 'typ', val);
+  el.className = 'type-select type-' + val;
+  renderMilestones();
+}
+function onMilestoneEdit(id, field, val){ setMOverride(id, field, val); renderMilestones(); }
+
+function deleteMilestone(id){
+  if(!confirm('Remove this item? You can bring it back later with "Restore deleted items".')) return;
+  if(!state.deletedMilestones.includes(id)) state.deletedMilestones.push(id);
+  saveState();
+  renderMilestones();
+}
+function restoreDeletedMilestones(){
+  state.deletedMilestones = [];
+  saveState();
+  renderMilestones();
+}
+document.getElementById('restoreMilestonesBtn').addEventListener('click', restoreDeletedMilestones);
+
+document.getElementById('addMilestoneBtn').addEventListener('click', ()=>{
+  const item = document.getElementById('newItem').value.trim();
+  if(!item) return;
+  const id = 100000 + Date.now()%100000;
+  state.milestoneCustom.push({
+    id, item, yr: document.getElementById('newYear').value,
+    trk:[document.getElementById('newTrack').value],
+    typ: document.getElementById('newType').value,
+    ev:"", rev:"", note:"", access:""
+  });
+  saveState();
+  document.getElementById('newItem').value='';
+  renderMilestones();
+});
+
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  if(!confirm('This clears all saved progress, notes, deletions, and custom items in this browser. Continue?')) return;
+  localStorage.removeItem(STORE_KEY);
+  state = loadState();
+  renderAll();
+});
+
+document.getElementById('exportBtn').addEventListener('click', ()=>{
+  const blob = new Blob([JSON.stringify(state,null,2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'doctoral-tracker-backup.json';
+  a.click();
+});
+document.getElementById('importFile').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const imported = JSON.parse(reader.result);
+      state = Object.assign(loadState(), imported);
+      saveState();
+      renderAll();
+      alert('Backup imported.');
+    }catch(err){ alert('Could not read that file.'); }
+  };
+  reader.readAsText(file);
+});
+
+/* ---------- Export as PDF (uses the browser's native print-to-PDF) ---------- */
+document.getElementById('exportPdfBtn').addEventListener('click', ()=>{
+  const d = new Date();
+  const dateStr = d.toLocaleDateString(undefined, {year:'numeric', month:'long', day:'numeric'});
+  const trackNote = state.activeTracks.length
+    ? ' · Track filter applied: ' + state.activeTracks.map(t=>TRACKS[t]).join(', ')
+    : ' · Showing all tracks';
+  document.getElementById('printDate').textContent = 'Exported ' + dateStr + trackNote + '. Everything currently filled in below is included — filter the Milestones tab first if you only want your track.';
+  window.print();
+});
+
+/* ---------- Planner tab ---------- */
+function renderPlanner(){
+  const body = document.getElementById('plannerBody');
+  const rows = allPlanner()
+    .filter(p => !state.deletedPlanner.includes(p.id))
+    .map(effectivePlanner);
+  body.innerHTML = rows.map(p=>{
+    return `<tr>
+      <td><div class="editable" contenteditable="true" onblur="onPlannerEdit(${p.id},'term',this.innerText)">${escapeHtml(p.term)}</div></td>
+      <td><select class="year-select" onchange="onPlannerEdit(${p.id},'yr',this.value)">
+          ${YEARS.map(y=>`<option ${p.yr===y?'selected':''}>${y}</option>`).join('')}
+        </select></td>
+      <td><div class="editable" contenteditable="true" onblur="onPlannerEdit(${p.id},'c1',this.innerText)">${escapeHtml(p.c1)}</div></td>
+      <td><div class="editable" contenteditable="true" onblur="onPlannerEdit(${p.id},'c2',this.innerText)">${escapeHtml(p.c2)}</div></td>
+      <td><div class="editable" contenteditable="true" onblur="onPlannerEdit(${p.id},'c3',this.innerText)">${escapeHtml(p.c3)}</div></td>
+      <td><div class="editable" contenteditable="true" onblur="onPlannerEdit(${p.id},'other',this.innerText)">${escapeHtml(p.other)}</div></td>
+      <td><select onchange="onPlannerEdit(${p.id},'status',this.value)">
+          <option ${p.status==='Not started'?'selected':''}>Not started</option>
+          <option ${p.status==='In progress'?'selected':''}>In progress</option>
+          <option ${p.status==='Done'?'selected':''}>Done</option>
+        </select></td>
+      <td class="row-actions"><button class="btn danger" onclick="deletePlannerRow(${p.id})">Delete</button></td>
+    </tr>`;
+  }).join('');
+}
+function onPlannerEdit(id, field, val){ setPOverride(id, field, val); }
+function deletePlannerRow(id){
+  if(!confirm('Remove this term? You can bring it back later with "Restore deleted terms".')) return;
+  if(!state.deletedPlanner.includes(id)) state.deletedPlanner.push(id);
+  saveState();
+  renderPlanner();
+}
+function restoreDeletedPlanner(){
+  state.deletedPlanner = [];
+  saveState();
+  renderPlanner();
+}
+document.getElementById('restorePlannerBtn').addEventListener('click', restoreDeletedPlanner);
+document.getElementById('addTermRowBtn').addEventListener('click', ()=>{
+  const term = document.getElementById('newTermName').value.trim();
+  if(!term) return;
+  const id = 200000 + Date.now()%100000;
+  state.plannerCustom.push({id, term, yr: document.getElementById('newTermYear').value, c1:"", c2:"", c3:"", other:""});
+  saveState();
+  document.getElementById('newTermName').value='';
+  renderPlanner();
+});
+
+/* ---------- IDP tab ---------- */
+function renderIdp(){
+  const wrap = document.getElementById('idpCards');
+  wrap.innerHTML = DEFAULT_IDP.map(row=>{
+    const ov = iOverride(row.id);
+    const fields = [
+      ['degree','Degree Goals'],['skills','Skills Goals'],['career','Career Goals'],
+      ['personal','Personal Goals'],['funding','Funding Goals'],['access','Access Planning']
+    ];
+    return `<div class="card">
+      <h3>${row.yr}</h3>
+      <div class="grid2">
+      ${fields.map(([f,label])=>{
+        const val = ov[f] ?? row[f];
+        return `<div><div class="muted" style="font-size:0.75rem;margin-bottom:2px;">${label}</div>
+          <div class="editable" style="border:1px solid var(--border);" contenteditable="true" onblur="onIdpEdit(${row.id},'${f}',this.innerText)">${escapeHtml(val)}</div></div>`;
+      }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+  renderIdpTable();
+}
+function onIdpEdit(id, field, val){ setIOverride(id, field, val); renderIdpTable(); }
+function renderIdpTable(){
+  const body = document.getElementById('idpTableBody');
+  if(!body) return;
+  body.innerHTML = DEFAULT_IDP.map(row=>{
+    const ov = iOverride(row.id);
+    const fields = ['degree','skills','career','personal','funding','access'];
+    const vals = fields.map(f=> ov[f] ?? row[f]);
+    return `<tr><td><strong>${row.yr}</strong></td>${vals.map(v=>`<td>${escapeHtml(v)}</td>`).join('')}</tr>`;
+  }).join('');
+}
+
+/* ---------- Committee & Mentors tab ---------- */
+function renderMentors(){
+  const body = document.getElementById('mentorsBody');
+  if(!body) return;
+  const rows = allMentors().filter(m=>!state.deletedMentors.includes(m.id)).map(effectiveMentor);
+  body.innerHTML = rows.map(m=>`<tr>
+      <td><div class="editable" contenteditable="true" onblur="onMentorEdit(${m.id},'role',this.innerText)">${escapeHtml(m.role)}</div></td>
+      <td><div class="editable" contenteditable="true" onblur="onMentorEdit(${m.id},'who',this.innerText)">${escapeHtml(m.who)}</div></td>
+      <td><div class="editable" contenteditable="true" onblur="onMentorEdit(${m.id},'notes',this.innerText)">${escapeHtml(m.notes)}</div></td>
+      <td class="row-actions"><button class="btn danger" onclick="deleteMentor(${m.id})">Delete</button></td>
+    </tr>`).join('');
+}
+function onMentorEdit(id, field, val){ setMnOverride(id, field, val); }
+function deleteMentor(id){
+  if(!confirm('Remove this mentor role? You can bring it back later with "Restore deleted roles".')) return;
+  if(!state.deletedMentors.includes(id)) state.deletedMentors.push(id);
+  saveState();
+  renderMentors();
+}
+function restoreDeletedMentors(){ state.deletedMentors = []; saveState(); renderMentors(); }
+
+/* ---------- Job Market Dossier tab ---------- */
+function renderDossier(){
+  const body = document.getElementById('dossierBody');
+  if(!body) return;
+  const rows = allDossier().filter(d=>!state.deletedDossier.includes(d.id)).map(effectiveDossier);
+  body.innerHTML = rows.map(d=>`<tr>
+      <td><select class="status" data-val="${d.status}" onchange="onDossierStatus(${d.id}, this.value, this)">
+          <option ${d.status==='Not started'?'selected':''}>Not started</option>
+          <option ${d.status==='In progress'?'selected':''}>In progress</option>
+          <option ${d.status==='Done'?'selected':''}>Done</option>
+        </select></td>
+      <td><div class="editable" contenteditable="true" onblur="onDossierEdit(${d.id},'item',this.innerText)">${escapeHtml(d.item)}</div></td>
+      <td><div class="editable" contenteditable="true" onblur="onDossierEdit(${d.id},'note',this.innerText)">${escapeHtml(d.note)}</div></td>
+      <td><div class="editable" contenteditable="true" onblur="onDossierEdit(${d.id},'notes',this.innerText)">${escapeHtml(d.notes)}</div></td>
+      <td class="row-actions"><button class="btn danger" onclick="deleteDossier(${d.id})">Delete</button></td>
+    </tr>`).join('');
+}
+function onDossierStatus(id, val, el){ setDOverride(id, 'status', val); el.setAttribute('data-val', val); }
+function onDossierEdit(id, field, val){ setDOverride(id, field, val); }
+function deleteDossier(id){
+  if(!confirm('Remove this item? You can bring it back later with "Restore deleted items".')) return;
+  if(!state.deletedDossier.includes(id)) state.deletedDossier.push(id);
+  saveState();
+  renderDossier();
+}
+function restoreDeletedDossier(){ state.deletedDossier = []; saveState(); renderDossier(); }
+
+/* ---------- Glossary tab ---------- */
+function renderGlossary(){
+  const all = [...DEFAULT_GLOSSARY, ...state.glossaryCustom];
+  const body = document.getElementById('glossaryBody');
+  body.innerHTML = all.map((g,i)=>`<tr>
+      <td><strong>${escapeHtml(g.term)}</strong></td>
+      <td>${escapeHtml(g.def)}</td>
+      <td class="row-actions">${i>=DEFAULT_GLOSSARY.length ? `<button class="btn danger" onclick="deleteGlossary(${i-DEFAULT_GLOSSARY.length})">Delete</button>` : ''}</td>
+    </tr>`).join('');
+}
+document.getElementById('addTermBtn').addEventListener('click', ()=>{
+  const term = document.getElementById('newTerm').value.trim();
+  const def = document.getElementById('newDef').value.trim();
+  if(!term || !def) return;
+  state.glossaryCustom.push({term, def});
+  saveState();
+  document.getElementById('newTerm').value='';
+  document.getElementById('newDef').value='';
+  renderGlossary();
+});
+function deleteGlossary(idx){
+  state.glossaryCustom.splice(idx,1);
+  saveState();
+  renderGlossary();
+}
+
+/* ---------- Wire up new tab buttons ---------- */
+document.getElementById('restoreMentorsBtn').addEventListener('click', restoreDeletedMentors);
+document.getElementById('addMentorBtn').addEventListener('click', ()=>{
+  const role = document.getElementById('newMentorRole').value.trim();
+  if(!role) return;
+  const id = 300000 + Date.now()%100000;
+  state.mentorCustom.push({id, role, who:"", notes:""});
+  saveState();
+  document.getElementById('newMentorRole').value='';
+  renderMentors();
+});
+document.getElementById('restoreDossierBtn').addEventListener('click', restoreDeletedDossier);
+document.getElementById('addDossierBtn').addEventListener('click', ()=>{
+  const item = document.getElementById('newDossierItem').value.trim();
+  if(!item) return;
+  const id = 400000 + Date.now()%100000;
+  state.dossierCustom.push({id, item, note:"", notes:""});
+  saveState();
+  document.getElementById('newDossierItem').value='';
+  renderDossier();
+});
+
+/* ---------- Init ---------- */
+function renderAll(){
+  renderTrackCards();
+  renderFilterControls();
+  renderMilestones();
+  renderPlanner();
+  renderIdp();
+  renderMentors();
+  renderDossier();
+  renderGlossary();
+}
+renderAll();
+</script>
+</body>
+</html>
