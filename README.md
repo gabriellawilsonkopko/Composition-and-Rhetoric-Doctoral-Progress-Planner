@@ -1,19 +1,13 @@
 [README.md](https://github.com/user-attachments/files/30915821/README.md)
 # Doctoral Progress Tracker — Student Guide
 
-This is a website that helps you track your progress through your PhD in Rhetoric and Composition: coursework, milestones, semester planning, career goals, mentors, and job market prep. It was adapted from the article *Navigating Uncertain Terrain* by Gabriella Wilson-Kopko.
+This is a website that helps you track your progress through your PhD in Rhetoric and Composition: coursework, milestones, semester planning, career goals, mentors, and job market prep. 
 
 You don't need to know anything about coding to use this. This guide walks through everything in plain steps.
 
-## Opening your tracker
-
-Your program should have shared a web link with you (something like `https://username.github.io/repo-name/`). Just open that link in any browser — Chrome, Safari, Edge, Firefox all work — and you'll see the tracker. Nothing to install, no login required.
-
-Bookmark the link so you can find it easily each time you come back.
-
 ## How your information is saved
 
-Everything you type is saved automatically, right in your own browser, on your own device. Nobody else — not your program, not your advisor, not other students — can see what you enter. There's no account and nothing is sent to a server.
+Everything you type is saved automatically, right in your own browser, on your own device. 
 
 **The one thing to know:** because your progress lives only in your browser, it will *not* follow you if you switch computers, switch browsers, or clear your browser's history/data. Two ways to handle that, both described below: back up your data, or make your own permanent copy of the whole tracker.
 
@@ -31,7 +25,7 @@ A good habit: export a backup every so often, especially before exams, at the en
 If you'd like a version of the tracker that lives under your own name with its own link — for example, to keep using after graduation, or to feel free to heavily customize it — you can make a personal copy through GitHub. This is optional; using the shared link above with regular backups works fine too.
 
 1. Go to [github.com](https://github.com) and create a free account if you don't already have one.
-2. Open the tracker's repository page (ask your program for this link if you don't have it).
+2. Open the tracker's repository page (https://github.com/gabriellawilsonkopko/Composition-and-Rhetoric-Doctoral-Progress-Planner).
 3. Click the **Fork** button near the top-right of the page. This creates your own private copy of the whole project under your own account.
 4. On your new copy, click **Settings** (top tab), then **Pages** (left sidebar).
 5. Under "Build and deployment," set **Source** to **Deploy from a branch**, branch **main**, folder **/ (root)**, then **Save**.
