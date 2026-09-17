@@ -10,7 +10,7 @@ The workbook doesn’t assume a single normative timeline or career outcome. You
 
 This is an Excel **template** (`.xltx`), not a regular workbook. Download it and open it the way you’d open any template — Excel will start you off with a new, untitled copy, so you can fill it in freely without risking the original file that other students will download after you.
 
-1. Click the file in this repository and 1. [Download the RCWS Doctoral Degree EXCEL Planner here](RCWS%20Doctoral%20Degree%20EXCEL%20Planner.xltx).
+1. Click the file in this repository and [Download the RCWS Doctoral Degree EXCEL Planner here](RCWS%20Doctoral%20Degree%20EXCEL%20Planner.xltx).
 2. Double-click to open it in Excel (or “Use Template” if your version prompts you). This creates a fresh copy for you.
 3. Save your copy under your own filename before you start editing.
 
