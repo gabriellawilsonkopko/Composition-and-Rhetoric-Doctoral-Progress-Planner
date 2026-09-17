@@ -1,7 +1,5 @@
 # README
 
-# README
-
 # RCWS Doctoral Degree Planner
 
 An adaptable, accessible planning and progress-tracking workbook for rhetoric, composition, and writing studies (RCWS) doctoral students. It grew out of the appendix to Gabby Wilson-Kopko’s research on “Navigating Uncertain Terrain” — the missing documentation, vanishing institutional knowledge, and once-and-never-again explanations that make degree progress harder to track, especially for disabled graduate students, but that create friction for everyone.
